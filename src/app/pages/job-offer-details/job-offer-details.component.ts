@@ -17,6 +17,9 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { JobOffer } from '../../models/job-offer';
 import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+
 
 registerLocaleData(localeEsCO, 'es-CO');
 
@@ -38,35 +41,39 @@ registerLocaleData(localeEsCO, 'es-CO');
     FormsModule,
     RippleModule,
     TagModule,
+    ToastModule,
+    
     ],
-    providers: [DatePipe]
+    providers: [DatePipe, MessageService]
 })
 
 export class JobOfferDetailsComponent implements OnInit {
 
-    constructor(private route: ActivatedRoute, private api: ApiService, private datePipe: DatePipe ) {}
+    constructor(private route: ActivatedRoute, private api: ApiService, private datePipe: DatePipe, private messageService: MessageService) {}
 
     loading = false;
     searchTerm = '';
     offer: JobOffer | null = null;
     statusClass: string = '';
     students: any[] = [];
+    offerId!: number;
+    
 
     ngOnInit(): void {
-        const offerId = Number(this.route.snapshot.paramMap.get('id'));
-        console.log('ID recibido desde la ruta:', offerId);
+        this.offerId = Number(this.route.snapshot.paramMap.get('id'));
+        console.log('ID recibido desde la ruta:', this.offerId);
         
-        if (isNaN(offerId)) {
+        if (isNaN(this.offerId)) {
             console.error('ID inválido en la URL');
             return;
         }
 
-        this.loadOfferDetails(offerId);
-        this.loadPostulations(offerId);
+        this.loadOfferDetails(this.offerId);
+        this.loadPostulations(this.offerId);
     }
 
     loadOfferDetails(offerId: number): void {
-        this.api.getOfferById(offerId).subscribe({
+        this.api.getOfferById(this.offerId).subscribe({
             next: (data) => {
                 data.fechaPublicacion = this.datePipe.transform(data.date, 'yyyy-MM-dd');
                 this.offer = data;
@@ -104,26 +111,53 @@ export class JobOfferDetailsComponent implements OnInit {
             }
         });
     }
+        postulations = [
+        {
+            id: 1,
+            fullName: 'Daniel Rodríguez',
+            studentCode: 202012345,
+            date: new Date('2025-05-15T10:00:00'),
+            program: 'Ingeniería de Sistemas',
+            status: 'Aprobada'
+        },
+        {
+            id: 2,
+            fullName: 'Laura Gómez',
+            studentCode: 202034567,
+            date: new Date('2025-05-14T09:30:00'),
+            program: 'Ingeniería Industrial',
+            status: 'Pendiente'
+        },
+        {
+            id: 3,
+            fullName: 'Carlos Torres',
+            studentCode: 202045678,
+            date: new Date('2025-05-13T14:15:00'),
+            program: 'Administración de Empresas',
+            status: 'Rechazada'
+        }
+    ];
 
-    getStatusClass(status: string): string {
-        const statusMap: any = {
-        'ABIERT': 'approved',
-        'EN ESPERA': 'pending',
-        'DENEGADA': 'rejected'
-        };
-        return statusMap[status] || '';
-    }
-
-    verDetalles(student: any): void {
-        console.log('Detalles del estudiante:', student);
-    }
-
-    clear(table: any) {
-        table.clear();
-    }
-
-    editarTitulo() {
-        console.log('Editar postulacion:');
+    onChangeStatus(id: number, status: string): void {
+        const newStatus = status;
+        this.api.changePostulationStatus(id, newStatus).subscribe({
+        next: () => {
+            this.postulations = this.postulations.filter(postulations => postulations.id !== id);
+            this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Registro actualizado correctamente.'
+            });
+        },
+        error: (err) => {
+            console.error('Error al validar el registro:', err);
+            this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al actualizar el registro. Por favor, inténtelo de nuevo más tarde.'
+            });
+        }
+        });
     }
     
 }
