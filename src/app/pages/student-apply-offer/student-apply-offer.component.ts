@@ -12,6 +12,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ApiService } from '../../services/api.service';
 import { JobOffer } from '../../models/job-offer';
 import { CommonModule } from '@angular/common';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-student-apply-offer',
@@ -21,6 +22,7 @@ import { CommonModule } from '@angular/common';
     EditorModule, FormsModule, DatePickerModule, 
     SelectModule, KeyFilterModule, InputNumberModule, TextareaModule, CommonModule
   ],
+  providers: [MessageService],
   templateUrl: './student-apply-offer.component.html',
   styleUrl: './student-apply-offer.component.css'
 })
@@ -32,7 +34,7 @@ export class StudentApplyOfferComponent implements OnInit {
 
   dynamicOffers: JobOffer[] = [];
   
-    constructor(private apiService: ApiService) {}
+    constructor(private apiService: ApiService, private messageService: MessageService) {}
   
     ngOnInit(): void {
       this.loadOffers();
@@ -61,5 +63,27 @@ export class StudentApplyOfferComponent implements OnInit {
   showDialog() {
     this.visible = true;
   }
-  
+
+  applyToOffer() {
+    if (!this.offer?.id) return;
+
+    this.apiService.applyToOffer(this.offer.id).subscribe({
+      next: (response) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Aplicación exitosa',
+          detail: 'Te has postulado correctamente a la oferta.'
+        });
+        this.visible = false; // Close the dialog
+      },
+      error: (err) => {
+        console.error('Error al aplicar a la oferta:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo completar la postulación.'
+        });
+      }
+    });
+  }
 }

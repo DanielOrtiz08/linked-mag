@@ -76,6 +76,9 @@ export class StudentOffersComponent implements OnInit {
     });
   }
 
+  handleDialogClose() {
+    this.loadOffers(); // Refresh the offers list
+  }
 
   clear(table: any) {
     table.clear();

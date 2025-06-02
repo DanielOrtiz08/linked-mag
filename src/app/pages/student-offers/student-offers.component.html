@@ -79,7 +79,7 @@
         {{ rowData.salary}}
     </td>
     <td>
-        <app-student-apply-offer [offer]="rowData"></app-student-apply-offer>
+        <app-student-apply-offer [offer]="rowData" (close)="handleDialogClose()"></app-student-apply-offer>
     </td>
 </tr>
 </ng-template>

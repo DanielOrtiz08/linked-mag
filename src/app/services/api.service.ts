@@ -260,4 +260,13 @@ export class ApiService {
     );
   }
 
+  applyToOffer(offerId: number): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/api/postulations/offers/${offerId}/apply`,
+      {},
+      {
+        headers: this.getHeaders(),
+      }
+    );
+  }
 }
