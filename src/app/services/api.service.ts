@@ -137,6 +137,15 @@ export class ApiService {
     });
   }
 
+  getPostulationsByOfferId(offerId: number): Observable<any> {
+    return this.http.get(
+      `${this.apiUrl}/api/postulations/offers/${offerId}/postulations`,
+      {
+        headers: this.getHeaders(),
+      }
+    );
+  }
+
   // ========== CURRICULUM VITAE ==========
   uploadCV(file: File, studentId: string): Observable<any> {
     const formData = new FormData();

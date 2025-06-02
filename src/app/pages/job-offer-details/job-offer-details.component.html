@@ -65,13 +65,8 @@
                 [globalFilterFields]="['fullName', 'studentCode', 'date', 'program', 'status']">
 
                 <ng-template #caption>
-                    <div class="flex">
-                        <div
-                class="flex items-start justify-between bg-white">
-                <h2 class="text-2xl font-bold text-gray-800">
-                    Postulaciones recibidas
-                </h2>
-            </div>
+                    <div class="flex items-start justify-between bg-white">
+                        <h2 class="text-2xl font-bold text-gray-800">Postulaciones recibidas</h2>
                         <p-iconfield iconPosition="left" class="m-auto">
                             <p-inputicon>
                                 <i class="pi pi-search"></i>
@@ -129,9 +124,7 @@
 
                 <ng-template pTemplate="body" let-rowData>
                     <tr>
-                        <td style="padding-left:5rem;">
-                            {{ rowData.fullName }}
-                        </td>
+                        <td style="padding-left:5rem;">{{ rowData.fullName }}</td>
                         <td>{{ rowData.studentCode }}</td>
                         <td>{{ rowData.date | date:'MMM dd, yyyy hh:mm a' }}</td>
                         <td>{{ rowData.program }}</td>

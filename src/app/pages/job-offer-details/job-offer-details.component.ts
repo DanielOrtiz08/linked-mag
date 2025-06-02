@@ -50,8 +50,7 @@ export class JobOfferDetailsComponent implements OnInit {
     searchTerm = '';
     offer: JobOffer | null = null;
     statusClass: string = '';
-
-    
+    students: any[] = [];
 
     ngOnInit(): void {
         const offerId = Number(this.route.snapshot.paramMap.get('id'));
@@ -60,11 +59,13 @@ export class JobOfferDetailsComponent implements OnInit {
         if (isNaN(offerId)) {
             console.error('ID inválido en la URL');
             return;
-        }// Ajusta el texto exacto a lo que devuelve tu API:
+        }
 
-        
-        
+        this.loadOfferDetails(offerId);
+        this.loadPostulations(offerId);
+    }
 
+    loadOfferDetails(offerId: number): void {
         this.api.getOfferById(offerId).subscribe({
             next: (data) => {
                 data.fechaPublicacion = this.datePipe.transform(data.date, 'yyyy-MM-dd');
@@ -81,35 +82,28 @@ export class JobOfferDetailsComponent implements OnInit {
                 console.error('Error al cargar la oferta:', err);
             }
         });
-
     }
 
-        students = [
-        {
-            id: 1,
-            fullName: 'Daniel Rodríguez',
-            studentCode: '202012345',
-            date: new Date('2025-05-15T10:00:00'),
-            program: 'Ingeniería de Sistemas',
-            status: 'Aprobada'
-        },
-        {
-            id: 2,
-            fullName: 'Laura Gómez',
-            studentCode: '202034567',
-            date: new Date('2025-05-14T09:30:00'),
-            program: 'Ingeniería Industrial',
-            status: 'Pendiente'
-        },
-        {
-            id: 3,
-            fullName: 'Carlos Torres',
-            studentCode: '202045678',
-            date: new Date('2025-05-13T14:15:00'),
-            program: 'Administración de Empresas',
-            status: 'Rechazada'
-        }
-    ];
+    loadPostulations(offerId: number): void {
+        this.loading = true;
+        this.api.getPostulationsByOfferId(offerId).subscribe({
+            next: (postulations) => {
+                this.students = postulations.map((postulation: any) => ({
+                    id: postulation.studentId,
+                    fullName: postulation.name,
+                    studentCode: postulation.studentCode,
+                    date: new Date(postulation.postulationDate),
+                    program: postulation.academicProgram, // Ensure this maps correctly
+                    status: postulation.status // Default status for now
+                }));
+                this.loading = false;
+            },
+            error: (err) => {
+                console.error('Error al cargar las postulaciones:', err);
+                this.loading = false;
+            }
+        });
+    }
 
     getStatusClass(status: string): string {
         const statusMap: any = {
